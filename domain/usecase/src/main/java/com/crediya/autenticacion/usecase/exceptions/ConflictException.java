@@ -1,9 +1,17 @@
 package com.crediya.autenticacion.usecase.exceptions;
 
-import com.crediya.autenticacion.model.exceptions.ValidationException;
+import lombok.Getter;
 
-public class ConflictException extends ValidationException {
+@Getter
+public class ConflictException extends IllegalStateException {
+    private String code;
     public ConflictException(String code, String message) {
-        super(code, message);
+        super(message);
+        this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s: %s", code, super.getMessage());
     }
 }
