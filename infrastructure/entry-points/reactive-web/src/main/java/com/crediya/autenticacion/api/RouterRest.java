@@ -1,0 +1,19 @@
+package com.crediya.autenticacion.api;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+
+@Configuration
+public class RouterRest {
+    @Bean
+    public RouterFunction<ServerResponse> routerFunction(HandlerV1 handlerV1) {
+        return RouterFunctions
+            .route()
+            .path("/api/v1/usuarios", builder -> builder.POST(handlerV1::createUser))
+            .build();
+        }
+}

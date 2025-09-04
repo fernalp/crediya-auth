@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  db-crediya-autenticacion:
+    image: postgres:17-alpine
+    container_name: db-crediya-autenticacion
+    environment:
+      - POSTGRES_USER=auth-user
+      - POSTGRES_PASSWORD=auth-password
+      - POSTGRES_DB=crediya-autenticacion
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
