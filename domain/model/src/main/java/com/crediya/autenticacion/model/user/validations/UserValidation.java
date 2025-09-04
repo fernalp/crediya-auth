@@ -14,8 +14,8 @@ public class UserValidation {
     private static final String ERROR_MESSAGE_GREATER_THAN_MAX = "El salario no puede ser mayor a " + SALARY_MAX;
 
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-    private static final String ERROR_CODE = "EMAIL_INVALID";
-    private static final String ERROR_MESSAGE = "El correo electrónico no es válido";
+    private static final String ERROR_CODE_EMAIL = "EMAIL_INVALID";
+    private static final String ERROR_MESSAGE_EMAIL = "El correo electrónico no es válido";
 
     public static Mono<User> validate(User user) {
         return Mono.when(
@@ -38,7 +38,7 @@ public class UserValidation {
 
     private static Mono<Void> validateEmail(String email) {
         if(!email.matches(EMAIL_REGEX)) {
-            return Mono.error(new ValidationException(ERROR_CODE, ERROR_MESSAGE));
+            return Mono.error(new ValidationException(ERROR_CODE_EMAIL, ERROR_MESSAGE_EMAIL));
         }
         return Mono.empty();
     }
