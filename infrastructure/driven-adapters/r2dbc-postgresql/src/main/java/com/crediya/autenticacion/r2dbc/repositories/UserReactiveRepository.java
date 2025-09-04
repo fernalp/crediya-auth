@@ -1,6 +1,5 @@
 package com.crediya.autenticacion.r2dbc.repositories;
 
-import com.crediya.autenticacion.model.user.User;
 import com.crediya.autenticacion.r2dbc.entities.UserEntity;
 import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;

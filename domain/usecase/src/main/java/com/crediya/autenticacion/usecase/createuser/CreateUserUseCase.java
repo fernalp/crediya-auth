@@ -3,6 +3,7 @@ package com.crediya.autenticacion.usecase.createuser;
 import com.crediya.autenticacion.model.role.gateways.RoleRepository;
 import com.crediya.autenticacion.model.user.User;
 import com.crediya.autenticacion.model.user.gateways.UserRepository;
+import com.crediya.autenticacion.model.user.validations.UserValidation;
 import com.crediya.autenticacion.usecase.exceptions.ConflictException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -18,17 +19,19 @@ public class CreateUserUseCase {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    public Mono<User> createUser(User user) {
-        return validateUser(user)
-                .then(roleRepository.findByName(DEFAULT_ROLE))
-                .flatMap(role -> {
-                    user.setRole(role);
-                    return userRepository.save(user);
-                });
+    public Mono<User> execute(User user) {
+        return roleRepository.findByName(DEFAULT_ROLE)
+                .map(role -> {
+                            user.setRole(role);
+                            return user;
+                        })
+                .flatMap(UserValidation::validate)
+                .flatMap(this::validateExistEmailAndIdNumber)
+                .flatMap(userRepository::save);
     }
 
-    private Mono<Void> validateUser(User user) {
-        return userRepository.existsByEmail(user.getEmail().toString())
+    private Mono<User> validateExistEmailAndIdNumber(User user) {
+        return userRepository.existsByEmail(user.getEmail())
                 .flatMap(exists -> {
                     if(exists) {
                         return Mono.error(new ConflictException(ERROR_CODE, ERROR_MESSAGE_EMAIL));
@@ -39,7 +42,7 @@ public class CreateUserUseCase {
                     if(exists) {
                         return Mono.error(new ConflictException(ERROR_CODE, ERROR_MESSAGE_ID_NUMBER));
                     }
-                    return Mono.empty();
+                    return Mono.just(user);
                 });
     }
 

@@ -7,6 +7,7 @@ import com.crediya.autenticacion.r2dbc.helper.ReactiveAdapterOperations;
 import com.crediya.autenticacion.r2dbc.mappers.UserEntityMapper;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
@@ -29,24 +30,49 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<Boolean> existsByEmail(String email) {
-        return repository.existsByEmail(email.toLowerCase());
+        return super.repository
+                .existsByEmail(email.trim().toLowerCase());
     }
 
     @Override
     public Mono<Boolean> existsByIdNumber(String idNumber) {
-        return repository.existsByIdNumber(idNumber);
+        return super.repository
+                .existsByIdNumber(idNumber.trim().toUpperCase());
     }
 
     @Override
     public Mono<User> findByIdNumber(String idNumber) {
-        return repository.findByIdNumber(idNumber).map(UserEntityMapper::toUser);
+        return super.repository
+                .findByIdNumber(idNumber.trim())
+                .map(UserEntityMapper::toUser);
     }
 
     @Override
     public Mono<User> findByEmail(String email) {
-        return repository.findByEmail(email.toLowerCase()).map(UserEntityMapper::toUser);
+        return super.repository
+                .findByEmail(email.trim().toLowerCase())
+                .map(UserEntityMapper::toUser);
     }
 
+    @Override
+    public Mono<User> findById(BigInteger id) {
+        return super.repository
+                .findById(id)
+                .map(UserEntityMapper::toUser);
+    }
 
+    @Override
+    public Mono<User> save(User user) {
+        return super.repository
+                .save(UserEntityMapper.toUserEntity(user))
+                .map(UserEntityMapper::toUser);
+    }
+
+    @Override
+    public Flux<User> findAll() {
+        return super.repository
+                .findAll()
+                .map(UserEntityMapper::toUser);
+    }
 
 }
