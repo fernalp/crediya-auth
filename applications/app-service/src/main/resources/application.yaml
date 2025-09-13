@@ -30,3 +30,14 @@ adapters:
     username: "auth-user"
     password: "auth-password"
     schema: "public"
+
+springdoc:
+  swagger-ui:
+    path: "/api/doc/swagger-ui.html"
+  api-docs:
+    path: "/api/doc/api-docs"
+
+scalar:
+  url: "http://localhost:8080/api/doc/api-docs"
+  path: "/docs"
+  enabled: true
