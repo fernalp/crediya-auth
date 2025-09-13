@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -21,6 +22,7 @@ public class HandlerV1 {
     private final CreateUserUseCase createUserUseCase;
     private final ReactiveValidator reactiveValidator;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final TransactionalOperator tx;
 
     public Mono<ServerResponse> createUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(CreateUserDTO.class)
@@ -34,7 +36,7 @@ public class HandlerV1 {
                             .status(HttpStatus.CREATED)
                             .contentType(MediaType.APPLICATION_JSON)
                             .bodyValue(userResponseDTO);
-                })
+                }).as(tx::transactional)
                 .doOnError(error -> log.error(error.toString()))
                 ;
 }
