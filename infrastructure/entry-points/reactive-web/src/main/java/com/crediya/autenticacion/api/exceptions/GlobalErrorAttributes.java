@@ -2,6 +2,7 @@ package com.crediya.autenticacion.api.exceptions;
 
 import com.crediya.autenticacion.model.exceptions.ValidationException;
 import com.crediya.autenticacion.usecase.exceptions.ConflictException;
+import com.crediya.autenticacion.usecase.exceptions.UserNotFound;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
@@ -19,21 +20,35 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
         Map<String, Object> errorMap = new HashMap<>();
         Throwable error = getError(request);
-        if (error instanceof ValidationException){
-            errorMap.put("code", ((ValidationException) error).getCode());
-            errorMap.put("message", error.getMessage());
-            errorMap.put("timestamp", LocalDateTime.now());
+
+        switch (error) {
+            case ValidationException exception -> {
+                errorMap.put("code", exception.getCode());
+                errorMap.put("message", error.getMessage());
+                errorMap.put("timestamp", LocalDateTime.now());
+            }
+            case ConflictException conflictException -> {
+                errorMap.put("code", conflictException.getCode());
+                errorMap.put("message", error.getMessage());
+                errorMap.put("timestamp", LocalDateTime.now());
+            }
+            case ServerWebInputException serverWebInputException -> {
+                errorMap.put("code", "ERROR_VALIDATION");
+                errorMap.put("message", "No podemos procesar la solicitud, verifica los datos proporcionados");
+                errorMap.put("timestamp", LocalDateTime.now());
+            }
+            case UserNotFound userNotFound -> {
+                errorMap.put("code", userNotFound.getCode());
+                errorMap.put("message", error.getMessage());
+                errorMap.put("timestamp", LocalDateTime.now());
+            }
+            case null, default -> {
+                errorMap.put("code", "ERROR_UNEXPECTED");
+                errorMap.put("message", "Ocurrió un error inesperado");
+                errorMap.put("timestamp", LocalDateTime.now());
+            }
         }
-        if (error instanceof ConflictException){
-            errorMap.put("code", ((ConflictException) error).getCode());
-            errorMap.put("message", error.getMessage());
-            errorMap.put("timestamp", LocalDateTime.now());
-        }
-        if (error instanceof ServerWebInputException){
-            errorMap.put("code", "ERROR_VALIDATION");
-            errorMap.put("message", "No podemos procesar la solicitud, verifica los datos proporcionados");
-            errorMap.put("timestamp", LocalDateTime.now());
-        }
+
         return errorMap;
     }
 }

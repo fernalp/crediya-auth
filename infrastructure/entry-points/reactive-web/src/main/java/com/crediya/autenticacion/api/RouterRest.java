@@ -22,6 +22,7 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction(HandlerV1 handlerV1) {
         return route()
                 .POST("/api/v1/usuarios", handlerV1::createUser, UserOpenApi::createUser)
+                .GET("/api/v1/usuarios/{idNumber}", handlerV1::findUserByIdNumber, UserOpenApi::findUserByIdNumber)
             .build();
         }
 }

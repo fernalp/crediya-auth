@@ -4,6 +4,7 @@ import com.crediya.autenticacion.api.dtos.CreateUserDTO;
 import com.crediya.autenticacion.api.mappers.UserMapper;
 import com.crediya.autenticacion.api.validator.ReactiveValidator;
 import com.crediya.autenticacion.usecase.createuser.CreateUserUseCase;
+import com.crediya.autenticacion.usecase.finduserbyidnumber.FindUserByIdNumberUseCase;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 public class HandlerV1 {
 
     private final CreateUserUseCase createUserUseCase;
+    private final FindUserByIdNumberUseCase findUserByIdNumberUseCase;
     private final ReactiveValidator reactiveValidator;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final TransactionalOperator tx;
@@ -29,6 +31,7 @@ public class HandlerV1 {
                 .flatMap(reactiveValidator::validate)
                 .map(UserMapper::toUser)
                 .flatMap(createUserUseCase::execute)
+                .as(tx::transactional)
                 .map(UserMapper::toUserResponseDTO)
                 .flatMap(userResponseDTO -> {
                     log.info("Usuario creado exitosamente {}", userResponseDTO.toString());
@@ -36,9 +39,24 @@ public class HandlerV1 {
                             .status(HttpStatus.CREATED)
                             .contentType(MediaType.APPLICATION_JSON)
                             .bodyValue(userResponseDTO);
-                }).as(tx::transactional)
+                })
                 .doOnError(error -> log.error(error.toString()))
                 ;
-}
+    }
+
+    public Mono<ServerResponse> findUserByIdNumber(ServerRequest serverRequest) {
+        String idNumber = serverRequest.pathVariable("idNumber");
+        return findUserByIdNumberUseCase.execute(idNumber)
+                .as(tx::transactional)
+                .map(UserMapper::toUserResponseDTO)
+                .flatMap(userResponseDTO -> {
+                    log.info("Usuario encontrado exitosamente {}", userResponseDTO.toString());
+                    return ServerResponse
+                            .status(HttpStatus.OK)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(userResponseDTO);
+                })
+                .doOnError(error -> log.error(error.toString()));
+    }
 
 }
