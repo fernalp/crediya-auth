@@ -2,7 +2,7 @@ package com.crediya.autenticacion.api.exceptions;
 
 import com.crediya.autenticacion.model.exceptions.ValidationException;
 import com.crediya.autenticacion.usecase.exceptions.ConflictException;
-import com.crediya.autenticacion.usecase.exceptions.UserNotFound;
+import com.crediya.autenticacion.usecase.exceptions.NotFoundException;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
         if (error instanceof ConflictException){
             return renderConflictException(errorAttributes);
         }
-        if (error instanceof UserNotFound){
+        if (error instanceof NotFoundException){
             return renderNotFoundException(errorAttributes);
         }
         return renderInternalServerError(errorAttributes);

@@ -2,7 +2,7 @@ package com.crediya.autenticacion.api.exceptions;
 
 import com.crediya.autenticacion.model.exceptions.ValidationException;
 import com.crediya.autenticacion.usecase.exceptions.ConflictException;
-import com.crediya.autenticacion.usecase.exceptions.UserNotFound;
+import com.crediya.autenticacion.usecase.exceptions.NotFoundException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
@@ -37,8 +37,8 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
                 errorMap.put("message", "No podemos procesar la solicitud, verifica los datos proporcionados");
                 errorMap.put("timestamp", LocalDateTime.now());
             }
-            case UserNotFound userNotFound -> {
-                errorMap.put("code", userNotFound.getCode());
+            case NotFoundException notFoundException -> {
+                errorMap.put("code", notFoundException.getCode());
                 errorMap.put("message", error.getMessage());
                 errorMap.put("timestamp", LocalDateTime.now());
             }

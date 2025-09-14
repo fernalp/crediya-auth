@@ -2,7 +2,7 @@ package com.crediya.autenticacion.usecase.finduserbyidnumber;
 
 import com.crediya.autenticacion.model.user.User;
 import com.crediya.autenticacion.model.user.gateways.UserRepository;
-import com.crediya.autenticacion.usecase.exceptions.UserNotFound;
+import com.crediya.autenticacion.usecase.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -15,7 +15,7 @@ public class FindUserByIdNumberUseCase {
 
     public Mono<User> execute(String idNumber) {
         return userRepository.findByIdNumber(idNumber)
-                .switchIfEmpty(Mono.error(new UserNotFound(ERROR_MESSAGE)));
+                .switchIfEmpty(Mono.error(new NotFoundException(ERROR_MESSAGE)));
     }
 
 }
