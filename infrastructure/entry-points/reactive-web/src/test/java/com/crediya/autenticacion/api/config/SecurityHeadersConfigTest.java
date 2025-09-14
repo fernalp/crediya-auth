@@ -9,6 +9,7 @@ import com.crediya.autenticacion.api.validator.ReactiveValidator;
 import com.crediya.autenticacion.model.role.Role;
 import com.crediya.autenticacion.model.user.User;
 import com.crediya.autenticacion.usecase.createuser.CreateUserUseCase;
+import com.crediya.autenticacion.usecase.finduserbyidnumber.FindUserByIdNumberUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +48,9 @@ class SecurityHeadersConfigTest {
 
     @MockitoBean
     private CreateUserUseCase createUserUseCase;
+
+    @MockitoBean
+    private FindUserByIdNumberUseCase findUserByIdNumberUseCase;
 
     @MockitoBean
     private ReactiveValidator reactiveValidator;

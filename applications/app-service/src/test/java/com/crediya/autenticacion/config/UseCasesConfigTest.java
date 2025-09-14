@@ -3,6 +3,7 @@ package com.crediya.autenticacion.config;
 import com.crediya.autenticacion.model.role.gateways.RoleRepository;
 import com.crediya.autenticacion.model.user.gateways.UserRepository;
 import com.crediya.autenticacion.usecase.createuser.CreateUserUseCase;
+import com.crediya.autenticacion.usecase.finduserbyidnumber.FindUserByIdNumberUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +45,11 @@ public class UseCasesConfigTest {
         @Bean
         public CreateUserUseCase createUserUseCase() {
             return new CreateUserUseCase(userRepository, roleRepository);
+        }
+
+        @Bean
+        public FindUserByIdNumberUseCase findUserByIdNumberUseCase() {
+            return new FindUserByIdNumberUseCase(userRepository);
         }
     }
 }
