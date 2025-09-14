@@ -10,6 +10,8 @@ import com.crediya.autenticacion.model.role.Role;
 import com.crediya.autenticacion.model.user.User;
 import com.crediya.autenticacion.usecase.createuser.CreateUserUseCase;
 import com.crediya.autenticacion.usecase.exceptions.ConflictException;
+import com.crediya.autenticacion.usecase.exceptions.NotFoundException;
+import com.crediya.autenticacion.usecase.finduserbyidnumber.FindUserByIdNumberUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -48,7 +51,13 @@ class RouterRestTest {
     private CreateUserUseCase createUserUseCase;
 
     @MockitoBean
+    private FindUserByIdNumberUseCase findUserByIdNumberUseCase;
+
+    @MockitoBean
     private ReactiveValidator reactiveValidator;
+
+    @MockitoBean
+    private TransactionalOperator tx;
 
     private final String PATH = "/api/v1/usuarios";
 
@@ -97,39 +106,11 @@ class RouterRestTest {
         );
     }
 
-//    @Test
-//    void testListenGETUseCaseV1() {
-//        webTestClient.get()
-//                .uri("/api/v1/usecase/path")
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//                .expectStatus().isOk()
-//                .expectBody(String.class)
-//                .value(userResponse -> {
-//                            Assertions.assertThat(userResponse).isEmpty();
-//                        }
-//                );
-//    }
-
-//    @Test
-//    void testListenGETOtherUseCaseV1() {
-//        webTestClient.get()
-//                .uri("/api/v1/otherusercase/path")
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//                .expectStatus().isOk()
-//                .expectBody(String.class)
-//                .value(userResponse -> {
-//                            Assertions.assertThat(userResponse).isEmpty();
-//                        }
-//                );
-//    }
-
     @Test
     void shouldCreateUserAndReturnUserDTO() {
         when(reactiveValidator.validate(any(CreateUserDTO.class))).thenReturn(Mono.just(fakeCreateUserDTO));
         when(createUserUseCase.execute(any(User.class))).thenReturn(Mono.just(fakeUser));
-
+        when(tx.transactional(any(Mono.class))).thenReturn(Mono.just(fakeUser));
         webTestClient.post()
                 .uri(PATH)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -152,6 +133,7 @@ class RouterRestTest {
         String code = "VALIDATION_ERROR";
         when(reactiveValidator.validate(any(CreateUserDTO.class))).thenReturn(Mono.error(new ValidationException(code, message)));
         when(createUserUseCase.execute(any(User.class))).thenReturn(Mono.just(fakeUser));
+        when(tx.transactional(any(Mono.class))).thenReturn(Mono.error(new ValidationException(code, message)));
 
         webTestClient.post()
                 .uri(PATH)
@@ -172,6 +154,8 @@ class RouterRestTest {
         String code = "CONFLICT_ERROR";
         when(reactiveValidator.validate(any(CreateUserDTO.class))).thenReturn(Mono.just(fakeCreateUserDTO));
         when(createUserUseCase.execute(any(User.class))).thenReturn(Mono.error(new ConflictException(code, message)));
+        when(tx.transactional(any(Mono.class))).thenReturn(Mono.error(new ConflictException(code, message)));
+
         webTestClient.post()
                 .uri(PATH)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -191,6 +175,8 @@ class RouterRestTest {
         String code = "VALIDATION_ERROR";
         when(reactiveValidator.validate(any(CreateUserDTO.class))).thenReturn(Mono.just(fakeCreateUserDTO));
         when(createUserUseCase.execute(any(User.class))).thenReturn(Mono.error(new ValidationException(code, message)));
+        when(tx.transactional(any(Mono.class))).thenReturn(Mono.error(new ValidationException(code, message)));
+
         webTestClient.post()
                 .uri(PATH)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -201,6 +187,40 @@ class RouterRestTest {
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(code)
+                .jsonPath("$.message").isEqualTo(message);
+    }
+
+    @Test
+    void shouldFindUserByIdNumberAndReturnUserDTO() {
+        when(findUserByIdNumberUseCase.execute(any(String.class))).thenReturn(Mono.just(fakeUser));
+        when(tx.transactional(any(Mono.class))).thenReturn(Mono.just(fakeUser));
+        webTestClient.get()
+                .uri(PATH + "/" + fakeUser.getIdNumber())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(fakeUserDTO.id().intValue())
+                .jsonPath("$.numeroIdentificacion").isEqualTo(fakeUserDTO.numeroIdentificacion())
+                .jsonPath("$.nombres").isEqualTo(fakeUserDTO.nombres())
+                .jsonPath("$.apellidos").isEqualTo(fakeUserDTO.apellidos())
+                .jsonPath("$.correoElectronico").isEqualTo(fakeUserDTO.correoElectronico());
+    }
+
+    @Test
+    void shouldFindUserByIdNumberAndReturnThrowableWhenUserIsNotFound() {
+        String message = "Error";
+        when(findUserByIdNumberUseCase.execute(any(String.class))).thenReturn(Mono.error(new NotFoundException(message)));
+        when(tx.transactional(any(Mono.class))).thenReturn(Mono.error(new NotFoundException( message)));
+        webTestClient.get()
+                .uri(PATH + "/" + fakeUser.getIdNumber())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("USER_NOT_FOUND")
                 .jsonPath("$.message").isEqualTo(message);
     }
 }
