@@ -5,7 +5,7 @@ CREATE SEQUENCE IF NOT EXISTS roles_id_seq START 1 INCREMENT 1;
 CREATE TABLE IF NOT EXISTS roles (
     id INTEGER PRIMARY KEY DEFAULT nextval('roles_id_seq'),
     name VARCHAR(50) NOT NULL UNIQUE,
-    description VARCHAR(255),
+    description VARCHAR(255)
 );
 
 -- Set ownership of the sequence to the roles table
@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(20),
     email VARCHAR(255) NOT NULL UNIQUE,
     salary DECIMAL(15, 2) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     role_id INTEGER NOT NULL REFERENCES roles(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

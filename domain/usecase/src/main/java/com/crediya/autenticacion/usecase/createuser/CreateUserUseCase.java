@@ -1,6 +1,7 @@
 package com.crediya.autenticacion.usecase.createuser;
 
 import com.crediya.autenticacion.model.role.gateways.RoleRepository;
+import com.crediya.autenticacion.model.user.gateways.PasswordEncoderGateway;
 import com.crediya.autenticacion.model.user.User;
 import com.crediya.autenticacion.model.user.gateways.UserRepository;
 import com.crediya.autenticacion.model.user.validations.UserValidation;
@@ -18,6 +19,7 @@ public class CreateUserUseCase {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoderGateway passwordEncoderGateway;
 
     public Mono<User> execute(User user) {
         return roleRepository.findByName(DEFAULT_ROLE)
@@ -27,6 +29,7 @@ public class CreateUserUseCase {
                         })
                 .flatMap(UserValidation::validate)
                 .flatMap(this::validateExistEmailAndIdNumber)
+                .flatMap(this::encodePassword)
                 .flatMap(userRepository::save);
     }
 
@@ -44,6 +47,15 @@ public class CreateUserUseCase {
                     }
                     return Mono.just(user);
                 });
+    }
+
+    private Mono<User> encodePassword(User user) {
+        return Mono.just(user)
+                .flatMap( userP -> passwordEncoderGateway.encode(userP.getPassword())
+                        .map(encodedPassword -> {
+                            userP.setPassword(encodedPassword);
+                            return userP;
+                        }));
     }
 
 }

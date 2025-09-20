@@ -1,6 +1,7 @@
 package com.crediya.autenticacion.api.openapi;
 
 import com.crediya.autenticacion.api.dtos.CreateUserDTO;
+import com.crediya.autenticacion.api.dtos.LoginDTO;
 import com.crediya.autenticacion.api.dtos.UserResponseDTO;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.experimental.UtilityClass;
@@ -13,6 +14,7 @@ import static org.springdoc.core.fn.builders.content.Builder.contentBuilder;
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
 import static org.springdoc.core.fn.builders.requestbody.Builder.requestBodyBuilder;
 import static org.springdoc.core.fn.builders.schema.Builder.schemaBuilder;
+import static org.springdoc.core.fn.builders.securityrequirement.Builder.securityRequirementBuilder;
 
 @UtilityClass
 public class UserOpenApi {
@@ -34,6 +36,10 @@ public class UserOpenApi {
             .operationId("savedUser")
             .description("Crear un nuevo usuario")
             .tag("Usuario")
+            .security(
+                    securityRequirementBuilder()
+                            .name("bearerAuth")
+            )
             .requestBody(
                     requestBodyBuilder()
                             .required(true)
@@ -76,6 +82,10 @@ public class UserOpenApi {
                                 .in(ParameterIn.PATH)
                                 .schema(schemaBuilder().implementation(String.class))
                 )
+                .security(
+                        securityRequirementBuilder()
+                                .name("bearerAuth")
+                )
                 .response(
                         responseBuilder()
                                 .responseCode(SUCCESS_CODE)
@@ -91,5 +101,34 @@ public class UserOpenApi {
                                 .description(NOT_FOUND)
                 )
         ;
+    }
+
+    public Builder loginUser(Builder builder) {
+        return builder
+                .operationId("loginUser")
+                .description("Inicio de sesion de un usuario")
+                .tag("Auth")
+                .requestBody(
+                        requestBodyBuilder()
+                                .required(true)
+                                .content(
+                                        contentBuilder()
+                                                .mediaType(MediaType.APPLICATION_JSON_VALUE)
+                                                .schema(schemaBuilder().implementation(LoginDTO.class))
+                                        )
+                ).response(
+                        responseBuilder()
+                                .responseCode(SUCCESS_CODE)
+                                .description(SUCCESS_FOUND)
+                                .content(
+                                        contentBuilder()
+                                                .mediaType(MediaType.APPLICATION_JSON_VALUE)
+                                                .schema(schemaBuilder().implementation(UserResponseDTO.class))
+                                )
+                ).response(
+                        responseBuilder()
+                                .responseCode(NOT_FOUND_CODE)
+                                .description(NOT_FOUND)
+                );
     }
 }

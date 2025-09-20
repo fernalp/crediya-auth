@@ -1,6 +1,7 @@
 package com.crediya.autenticacion.api.exceptions;
 
 import com.crediya.autenticacion.model.exceptions.ValidationException;
+import com.crediya.autenticacion.security.exceptions.CustomAuthenticationException;
 import com.crediya.autenticacion.usecase.exceptions.ConflictException;
 import com.crediya.autenticacion.usecase.exceptions.NotFoundException;
 import org.springframework.boot.autoconfigure.web.WebProperties;
@@ -47,6 +48,9 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
         }
         if (error instanceof NotFoundException){
             return renderNotFoundException(errorAttributes);
+        }
+        if (error instanceof CustomAuthenticationException){
+            return renderUnauthorizedException(errorAttributes);
         }
         return renderInternalServerError(errorAttributes);
     }

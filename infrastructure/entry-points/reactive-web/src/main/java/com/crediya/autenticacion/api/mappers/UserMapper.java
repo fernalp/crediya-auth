@@ -18,7 +18,8 @@ public class UserMapper {
                 createUserDTO.telefono(),
                 createUserDTO.correoElectronico(),
                 createUserDTO.salario(),
-                Role.builder().id(createUserDTO.idRol()).build()
+                Role.builder().id(createUserDTO.idRol()).build(),
+                createUserDTO.contrasenia()
         );
     }
 

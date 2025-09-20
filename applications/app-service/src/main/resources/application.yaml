@@ -30,14 +30,18 @@ adapters:
     username: "auth-user"
     password: "auth-password"
     schema: "public"
-
 springdoc:
   swagger-ui:
     path: "/api/doc/swagger-ui.html"
   api-docs:
     path: "/api/doc/api-docs"
-
 scalar:
   url: "http://localhost:8080/api/doc/api-docs"
   path: "/docs"
   enabled: true
+
+security:
+  jwt:
+    secretkey: "4535abb79c0d2cd7790b9a6aa32d43d66c393c4f4c19e2280e587f53bb414e18"
+    issuer: "crediya"
+    expirationTime: 3600000

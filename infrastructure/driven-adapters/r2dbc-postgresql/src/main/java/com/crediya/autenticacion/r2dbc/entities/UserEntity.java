@@ -34,5 +34,6 @@ public class UserEntity {
     private BigDecimal salary;
     @Column("role_id")
     private Integer idRole;
+    private String password;
 
 }

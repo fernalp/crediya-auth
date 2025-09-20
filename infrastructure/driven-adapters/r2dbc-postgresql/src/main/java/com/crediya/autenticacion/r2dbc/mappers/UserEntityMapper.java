@@ -17,7 +17,8 @@ public class UserEntityMapper {
                 user.getPhone() == null ? null : user.getPhone().trim().toLowerCase(),
                 user.getEmail() == null ? null : user.getEmail().trim().toLowerCase(),
                 user.getSalary(),
-                user.getRole() == null ? null : user.getRole().getId()
+                user.getRole() == null ? null : user.getRole().getId(),
+                user.getPassword()
         );
     }
 
@@ -32,7 +33,8 @@ public class UserEntityMapper {
                 userEntity.getPhone(),
                 userEntity.getEmail(),
                 userEntity.getSalary(),
-                Role.builder().id(userEntity.getIdRole()).build()
+                Role.builder().id(userEntity.getIdRole()).build(),
+                userEntity.getPassword()
         );
     }
 }

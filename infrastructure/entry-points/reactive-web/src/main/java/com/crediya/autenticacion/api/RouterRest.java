@@ -23,6 +23,7 @@ public class RouterRest {
         return route()
                 .POST("/api/v1/usuarios", handlerV1::createUser, UserOpenApi::createUser)
                 .GET("/api/v1/usuarios/{idNumber}", handlerV1::findUserByIdNumber, UserOpenApi::findUserByIdNumber)
+                .POST("/api/v1/login", handlerV1::loginUser, UserOpenApi::loginUser)
             .build();
         }
 }
