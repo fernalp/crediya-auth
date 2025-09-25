@@ -1,6 +1,7 @@
 package com.crediya.autenticacion.api;
 
 import com.crediya.autenticacion.api.openapi.UserOpenApi;
+import com.crediya.autenticacion.model.constants.AuthConstants;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +22,10 @@ public class RouterRest {
     @Bean
     public RouterFunction<ServerResponse> routerFunction(HandlerV1 handlerV1) {
         return route()
-                .POST("/api/v1/usuarios", handlerV1::createUser, UserOpenApi::createUser)
-                .GET("/api/v1/usuarios/{idNumber}", handlerV1::findUserByIdNumber, UserOpenApi::findUserByIdNumber)
-                .POST("/api/v1/login", handlerV1::loginUser, UserOpenApi::loginUser)
+                .POST(AuthConstants.API_PATH_USERS, handlerV1::createUser, UserOpenApi::createUser)
+                .GET(AuthConstants.API_PATH_USERS, handlerV1::findAllUsers, UserOpenApi::findAll)
+                .GET(AuthConstants.API_PATH_USERS + "/{idNumber}", handlerV1::findUserByIdNumber, UserOpenApi::findUserByIdNumber)
+                .POST(AuthConstants.API_PATH_LOGIN, handlerV1::loginUser, UserOpenApi::loginUser)
             .build();
         }
 }

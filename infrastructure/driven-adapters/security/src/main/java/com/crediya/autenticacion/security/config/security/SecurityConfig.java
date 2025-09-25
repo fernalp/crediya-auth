@@ -1,5 +1,6 @@
 package com.crediya.autenticacion.security.config.security;
 
+import com.crediya.autenticacion.model.constants.AuthConstants;
 import com.crediya.autenticacion.security.config.jwt.JwtAuthenticationFilter;
 import com.crediya.autenticacion.security.exceptions.CustomAccessDeniedException;
 import com.crediya.autenticacion.security.exceptions.CustomAuthenticationEntryPoint;
@@ -18,14 +19,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String[] AUTH_WHITELIST = {
-            "/api/doc/swagger-ui.html",
-            "/api/doc/api-docs/**",
-            "/api/doc/swagger-ui/**",
-            "/docs",
-            "/scalar/**"
-    };
-
     private final CustomAccessDeniedException customAccessDeniedException;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
@@ -39,8 +32,8 @@ public class SecurityConfig {
                                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(AUTH_WHITELIST).permitAll()
-                        .pathMatchers("/api/v1/login").permitAll()
+                        .pathMatchers(AuthConstants.AUTH_WHITELIST).permitAll()
+                        .pathMatchers(AuthConstants.API_PATH_LOGIN).permitAll()
                         .anyExchange().authenticated()
 
                 ).addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);

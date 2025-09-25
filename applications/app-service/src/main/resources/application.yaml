@@ -26,10 +26,10 @@ adapters:
   r2dbc:
     host: "localhost"
     port: 5432
+    schema: "public"
     database: "crediya-autenticacion"
     username: "auth-user"
     password: "auth-password"
-    schema: "public"
 springdoc:
   swagger-ui:
     path: "/api/doc/swagger-ui.html"
@@ -42,6 +42,6 @@ scalar:
 
 security:
   jwt:
-    secretkey: "4535abb79c0d2cd7790b9a6aa32d43d66c393c4f4c19e2280e587f53bb414e18"
+    secret: "db3b2c4fd9e8ee696d8e04757a66dbc658f60cfc6126fc269fb415fab1eab6c3"
     issuer: "crediya"
-    expirationTime: 3600000
+    expiration-time: 3600000

@@ -5,6 +5,7 @@ import com.crediya.autenticacion.api.dtos.LoginDTO;
 import com.crediya.autenticacion.api.mappers.UserMapper;
 import com.crediya.autenticacion.api.validator.ReactiveValidator;
 import com.crediya.autenticacion.usecase.createuser.CreateUserUseCase;
+import com.crediya.autenticacion.usecase.findall.FindAllUseCase;
 import com.crediya.autenticacion.usecase.finduserbyidnumber.FindUserByIdNumberUseCase;
 import com.crediya.autenticacion.usecase.loginuser.LoginUserUseCase;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class HandlerV1 {
     private final CreateUserUseCase createUserUseCase;
     private final FindUserByIdNumberUseCase findUserByIdNumberUseCase;
     private final LoginUserUseCase loginUserUseCase;
+    private final FindAllUseCase findAllUsersUseCase;
     private final ReactiveValidator reactiveValidator;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final TransactionalOperator tx;
@@ -49,6 +51,7 @@ public class HandlerV1 {
                 ;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public Mono<ServerResponse> findUserByIdNumber(ServerRequest serverRequest) {
         String idNumber = serverRequest.pathVariable("idNumber");
         return findUserByIdNumberUseCase.execute(idNumber)
@@ -76,7 +79,22 @@ public class HandlerV1 {
                             .bodyValue(token);
                 })
                 .doOnError(error -> log.error(error.getMessage()));
+    }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    public Mono<ServerResponse> findAllUsers(ServerRequest serverRequest) {
+        return findAllUsersUseCase.execute()
+                .as(tx::transactional)
+                .map(UserMapper::toUserResponseDTO)
+                .collectList()
+                .flatMap(userResponseDTO -> {
+                    log.info("Usuarios encontrado exitosamente {}", userResponseDTO.toString());
+                    return ServerResponse
+                            .status(HttpStatus.OK)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(userResponseDTO);
+                })
+                .doOnError(error -> log.error(error.getMessage()));
     }
 
 }

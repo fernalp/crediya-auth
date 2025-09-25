@@ -1,5 +1,7 @@
 package com.crediya.autenticacion.security.exceptions;
 
+import com.crediya.autenticacion.model.ErrorMessage;
+import com.crediya.autenticacion.model.constants.AuthConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +17,11 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CustomAccessDeniedException implements ServerAccessDeniedHandler {
-
-    private static final String CODE = "FORBIDDEN";
-    private static final String MESSAGE_FORBIDDEN = "No tienes los permisos necesarios para acceder a este recurso!!";
 
     private final ObjectMapper objectMapper;
 
@@ -35,18 +32,20 @@ public class CustomAccessDeniedException implements ServerAccessDeniedHandler {
         response.setStatusCode(HttpStatus.FORBIDDEN);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("code", CODE);
-        data.put("message", MESSAGE_FORBIDDEN);
-        data.put("timestamp", new Date());
+        ErrorMessage data = ErrorMessage
+                .builder()
+                .code(AuthConstants.ERROR_CODE_FORBIDDEN)
+                .message(AuthConstants.ERROR_MESSAGE_FORBIDDEN)
+                .timestamp(new Date())
+                .build();
 
-        log.error("{}: {}", CODE, data);
+        log.error("{}: {}", data.getCode(), data);
 
-        byte[] responseBody = null;
+        byte[] responseBody;
         try {
             responseBody = objectMapper.writeValueAsString(data).getBytes(StandardCharsets.UTF_8);
         } catch (JsonProcessingException e) {
-            return Mono.error(new CustomAuthenticationException(MESSAGE_FORBIDDEN));
+            return Mono.error(new CustomAuthenticationException(AuthConstants.ERROR_MESSAGE_FORBIDDEN));
         }
 
         return response.writeWith(Mono.just(response.bufferFactory().wrap(responseBody)));

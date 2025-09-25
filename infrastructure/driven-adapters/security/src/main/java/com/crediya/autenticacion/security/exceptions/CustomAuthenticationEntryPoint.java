@@ -1,5 +1,7 @@
 package com.crediya.autenticacion.security.exceptions;
 
+import com.crediya.autenticacion.model.ErrorMessage;
+import com.crediya.autenticacion.model.constants.AuthConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +17,11 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CustomAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
-
-    private static final String CODE = "UNAUTHORIZED";
-    private static final String MESSAGE_UNAUTHORIZED = "No tienes credenciales validas, por favor inicia sesión!!";
 
     private final ObjectMapper objectMapper;
 
@@ -33,16 +30,17 @@ public class CustomAuthenticationEntryPoint implements ServerAuthenticationEntry
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        Map<String, Object> data = new HashMap<>();
-        data.put("code", CODE);
-        data.put("message", MESSAGE_UNAUTHORIZED);
-        data.put("timestamp", new Date());
-        log.error("{}: {}", CODE, data);
-        byte[] responseBody = null;
+        ErrorMessage data = ErrorMessage.builder()
+                .code(AuthConstants.ERROR_CODE_UNAUTHORIZED)
+                .message(AuthConstants.ERROR_MESSAGE_UNAUTHORIZED)
+                .timestamp(new Date())
+                .build();
+        log.error("{}: {}", data.getCode(), data);
+        byte[] responseBody;
         try {
             responseBody = objectMapper.writeValueAsString(data).getBytes(StandardCharsets.UTF_8);
         } catch (JsonProcessingException e) {
-            return Mono.error(new CustomAuthenticationException(MESSAGE_UNAUTHORIZED));
+            return Mono.error(new CustomAuthenticationException(AuthConstants.ERROR_MESSAGE_UNAUTHORIZED));
         }
         return response.writeWith(Mono.just(response.bufferFactory().wrap(responseBody)));
     }

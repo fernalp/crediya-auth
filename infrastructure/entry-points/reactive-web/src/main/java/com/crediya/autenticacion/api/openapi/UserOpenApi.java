@@ -1,12 +1,12 @@
 package com.crediya.autenticacion.api.openapi;
 
+import com.crediya.autenticacion.api.constants.ApiConstants;
 import com.crediya.autenticacion.api.dtos.CreateUserDTO;
 import com.crediya.autenticacion.api.dtos.LoginDTO;
 import com.crediya.autenticacion.api.dtos.UserResponseDTO;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.experimental.UtilityClass;
 import org.springdoc.core.fn.builders.operation.Builder;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
@@ -18,18 +18,6 @@ import static org.springdoc.core.fn.builders.securityrequirement.Builder.securit
 
 @UtilityClass
 public class UserOpenApi {
-
-    private static final String NOT_FOUND = HttpStatus.NOT_FOUND.getReasonPhrase();
-    private static final String SUCCESS_CREATED = "Usuario creado exitosamente";
-    private static final String SUCCESS_FOUND = "Usuario encontrado exitosamente";
-    private static final String BAD_REQUEST = HttpStatus.BAD_REQUEST.getReasonPhrase();
-    private static final String CONFLICT = HttpStatus.CONFLICT.getReasonPhrase();
-    private static final String CREATED_CODE = String.valueOf(HttpStatus.CREATED.value());
-    private static final String BAD_REQUEST_CODE = String.valueOf(HttpStatus.BAD_REQUEST.value());
-    private static final String CONFLICT_CODE = String.valueOf(HttpStatus.CONFLICT.value());
-    private static final String SUCCESS_CODE = String.valueOf(HttpStatus.OK.value());
-    private static final String NOT_FOUND_CODE = String.valueOf(HttpStatus.NOT_FOUND.value());
-
 
     public Builder createUser(Builder builder) {
     return builder
@@ -50,8 +38,8 @@ public class UserOpenApi {
                             )
             ).response(
                     responseBuilder()
-                            .responseCode(CREATED_CODE)
-                            .description(SUCCESS_CREATED)
+                            .responseCode(ApiConstants.HTTP_STATUS_CODE_CREATED)
+                            .description(ApiConstants.SUCCESS_CREATED)
                             .content(
                                     contentBuilder()
                                             .mediaType(MediaType.APPLICATION_JSON_VALUE)
@@ -59,12 +47,12 @@ public class UserOpenApi {
                             )
             ).response(
                     responseBuilder()
-                            .responseCode(BAD_REQUEST_CODE)
-                            .description(BAD_REQUEST)
+                            .responseCode(ApiConstants.HTTP_STATUS_CODE_BAD_REQUEST)
+                            .description(ApiConstants.BAD_REQUEST)
             ).response(
                     responseBuilder()
-                            .responseCode(CONFLICT_CODE)
-                            .description(CONFLICT)
+                            .responseCode(ApiConstants.HTTP_STATUS_CODE_CONFLICT)
+                            .description(ApiConstants.CONFLICT)
             )
             ;
     }
@@ -88,8 +76,8 @@ public class UserOpenApi {
                 )
                 .response(
                         responseBuilder()
-                                .responseCode(SUCCESS_CODE)
-                                .description(SUCCESS_FOUND)
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_OK)
+                                .description(ApiConstants.SUCCESS_FOUND)
                                 .content(
                                         contentBuilder()
                                                 .mediaType(MediaType.APPLICATION_JSON_VALUE)
@@ -97,8 +85,28 @@ public class UserOpenApi {
                                 )
                 ).response(
                         responseBuilder()
-                                .responseCode(NOT_FOUND_CODE)
-                                .description(NOT_FOUND)
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_NOT_FOUND)
+                                .description(ApiConstants.NOT_FOUND)
+                )
+                .response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_BAD_REQUEST)
+                                .description(ApiConstants.BAD_REQUEST)
+                )
+                .response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_CONFLICT)
+                                .description(ApiConstants.CONFLICT)
+                )
+                .response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_UNAUTHORIZED)
+                                .description(ApiConstants.UNAUTHORIZED)
+                )
+                .response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_FORBIDDEN)
+                                .description(ApiConstants.FORBIDDEN)
                 )
         ;
     }
@@ -118,8 +126,8 @@ public class UserOpenApi {
                                         )
                 ).response(
                         responseBuilder()
-                                .responseCode(SUCCESS_CODE)
-                                .description(SUCCESS_FOUND)
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_OK)
+                                .description(ApiConstants.LOGIN_SUCCESS)
                                 .content(
                                         contentBuilder()
                                                 .mediaType(MediaType.APPLICATION_JSON_VALUE)
@@ -127,8 +135,42 @@ public class UserOpenApi {
                                 )
                 ).response(
                         responseBuilder()
-                                .responseCode(NOT_FOUND_CODE)
-                                .description(NOT_FOUND)
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_NOT_FOUND)
+                                .description(ApiConstants.NOT_FOUND)
+                ).response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_BAD_REQUEST)
+                                .description(ApiConstants.BAD_REQUEST)
+                );
+    }
+
+    public Builder findAll(Builder builder){
+        return builder
+                .operationId("findAllUser")
+                .description("Listar todos los usuarios")
+                .tag("Usuario")
+                .security(
+                        securityRequirementBuilder()
+                                .name("bearerAuth")
+                ).response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_OK)
+                                .description(ApiConstants.SUCCESS_FOUND)
+                                .content(
+                                        contentBuilder()
+                                                .mediaType(MediaType.APPLICATION_JSON_VALUE)
+                                                .schema(schemaBuilder().implementation(UserResponseDTO.class))
+                                )
+                )
+                .response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_UNAUTHORIZED)
+                                .description(ApiConstants.UNAUTHORIZED)
+                )
+                .response(
+                        responseBuilder()
+                                .responseCode(ApiConstants.HTTP_STATUS_CODE_FORBIDDEN)
+                                .description(ApiConstants.FORBIDDEN)
                 );
     }
 }

@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ConflictException extends IllegalStateException {
-    private String code;
+    private final String code;
     public ConflictException(String code, String message) {
         super(message);
         this.code = code;

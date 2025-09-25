@@ -1,5 +1,6 @@
 package com.crediya.autenticacion.security.services;
 
+import com.crediya.autenticacion.model.constants.AuthConstants;
 import com.crediya.autenticacion.model.role.gateways.RoleRepository;
 import com.crediya.autenticacion.model.token.Token;
 import com.crediya.autenticacion.model.token.gateways.AuthRepository;
@@ -18,8 +19,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CustomReactiveUserDetailsService implements AuthRepository, ReactiveUserDetailsService {
 
-    private static final String MESSAGE_USER_NOT_FOUND = "El usuario no se encontró";
-
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtProvider jwtProvider;
@@ -29,14 +28,14 @@ public class CustomReactiveUserDetailsService implements AuthRepository, Reactiv
         return jwtProvider.generateToken(email, user.getRole().getName())
                 .map(tokenString -> Token.builder()
                             .accessToken(tokenString)
-                            .tokenType("Bearer")
+                            .tokenType(AuthConstants.DEFAULT_TOKEN_TYPE)
                             .build());
     }
 
     @Override
     public Mono<UserDetails> findByUsername(String username) {
         return userRepository.findByEmail(username)
-                .switchIfEmpty(Mono.error(new UsernameNotFoundException(MESSAGE_USER_NOT_FOUND)))
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException(AuthConstants.ERROR_MESSAGE_USER_NOT_FOUND)))
                 .flatMap(user -> roleRepository.findById(user.getRole().getId()).map(role -> {
                     user.setRole(role);
                     return user;

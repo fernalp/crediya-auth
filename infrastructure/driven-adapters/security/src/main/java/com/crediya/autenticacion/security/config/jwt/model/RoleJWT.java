@@ -1,5 +1,6 @@
 package com.crediya.autenticacion.security.config.jwt.model;
 
+import com.crediya.autenticacion.model.constants.AuthConstants;
 import lombok.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -16,7 +17,7 @@ public class RoleJWT {
 
     public List<SimpleGrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name));
+        authorities.add(new SimpleGrantedAuthority(AuthConstants.AUTHORITY_PREFIX + this.name));
         return authorities;
     }
 }

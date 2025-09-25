@@ -1,5 +1,6 @@
 package com.crediya.autenticacion.usecase.loginuser;
 
+import com.crediya.autenticacion.model.constants.AuthConstants;
 import com.crediya.autenticacion.model.exceptions.ValidationException;
 import com.crediya.autenticacion.model.role.gateways.RoleRepository;
 import com.crediya.autenticacion.model.token.Token;
@@ -12,10 +13,6 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 public class LoginUserUseCase {
-
-    private static final String ERROR_CODE = "VALIDATION_ERROR";
-    private static final String ERROR_MESSAGE_USER_NOT_FOUND = "El usuario no se encuentra registrado";
-    private static final String ERROR_MESSAGE_USER_OR_PASS_INCORRECT = "Usuario o contraseña incorrectos";
 
     private final AuthRepository authRepository;
     private final UserRepository userRepository;
@@ -30,17 +27,17 @@ public class LoginUserUseCase {
 
     private Mono<User> validateUser(String email, String password) {
         if(email == null || password == null) {
-            return Mono.error(new ValidationException(ERROR_CODE, ERROR_MESSAGE_USER_OR_PASS_INCORRECT));
+            return Mono.error(new ValidationException(AuthConstants.ERROR_CODE_VALIDATION, AuthConstants.ERROR_MESSAGE_USER_OR_PASS_INCORRECT));
         }
         return userRepository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new ValidationException(ERROR_CODE, ERROR_MESSAGE_USER_NOT_FOUND)))
+                .switchIfEmpty(Mono.error(new ValidationException(AuthConstants.ERROR_CODE_VALIDATION, AuthConstants.ERROR_MESSAGE_USER_NOT_FOUND)))
                 .flatMap(user -> passwordEncoder
                                 .matches(password, user.getPassword())
                                 .flatMap(isValid -> {
                                     if(isValid) {
                                         return Mono.just(user);
                                     }
-                                    return Mono.error(new ValidationException(ERROR_CODE, ERROR_MESSAGE_USER_OR_PASS_INCORRECT));
+                                    return Mono.error(new ValidationException(AuthConstants.ERROR_CODE_VALIDATION, AuthConstants.ERROR_MESSAGE_USER_OR_PASS_INCORRECT));
                                 })
                 );
     }
